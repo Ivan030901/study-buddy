@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Buddy - 主儀表板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffc0cb 0%, #ffb6d9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #ff69b4;
+            font-size: 2em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .user-details {
+            text-align: right;
+        }
+
+        .user-details p {
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .user-details .name {
+            color: #ff69b4;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ff1493;
+            transform: scale(1.05);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+            border-color: #ff69b4;
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h2 {
+            color: #ff69b4;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(255, 105, 180, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #ff69b4;
+            font-size: 1.8em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: #ff69b4;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ff69b4;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffb6d9;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ff69b4;
+        }
+
+        .list-item {
+            background: #ffe4f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ff69b4;
+        }
+
+        .list-item h4 {
+            color: #ff69b4;
+            margin-bottom: 5px;
+        }
+
+        .list-item p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff69b4 0%, #ff1493 100%);
+            transition: width 0.3s;
+        }
+
+        .timer-display {
+            font-size: 3em;
+            text-align: center;
+            color: #ff69b4;
+            font-weight: bold;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .timer-btn {
+            padding: 10px 20px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .timer-btn:hover {
+            background: #ff1493;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #ffe4f5;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #ffb6d9;
+        }
+
+        .stat-card h4 {
+            color: #ff69b4;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            color: #ff1493;
+            font-weight: bold;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ffb6d9;
+        }
+
+        .tab-btn {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-weight: bold;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #ff69b4;
+            border-bottom-color: #ff69b4;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 Study Buddy</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div class="user-details">
+                    <p class="name" id="userName">用戶名</p>
+                    <p id="userRole">身份</p>
+                </div>
+                <button class="logout-btn" onclick="logout()">登出</button>
+            </div>
+        </div>
+
+        <!-- Feature Grid -->
+        <div class="feature-grid">
+            <div class="feature-card" onclick="openModal('weekPlanModal')">
+                <div class="feature-icon">📋</div>
+                <h2>每周計畫</h2>
+                <p>制定每周的讀書計畫，與朋友分享進度，管理完成度</p>
+            </div>
+
+            <div class="feature-card" onclick="openModal('timerModal')">
+                <div class="feature-icon">⏱️</div>
+                <h2>專注計時</h2>
+                <p>設定倒計時，專注讀書，記錄學習時間</p>
+            </div>
+
+            <div class="feature-card" onclick="openModal('notesModal')">
+                <div class="feature-icon">📝</div>
+                <h2>筆記功能</h2>
+                <p>記錄讀書筆記，整理知識重點，保存學習成果</p>
+            </div>
+
+            <div class="feature-card" onclick="openModal('progressModal')">
+                <div class="feature-icon">📊</div>
+                <h2>進度追蹤</h2>
+                <p>追蹤每天讀書進度和所花費的時間</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 每周計畫 Modal -->
+    <div id="weekPlanModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 每周計畫</h2>
+                <button class="close-btn" onclick="closeModal('weekPlanModal')">×</button>
+            </div>
+
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('planTab', this)">制定計畫</button>
+                <button class="tab-btn" onclick="switchTab('progressTab', this)">進度分享</button>
+                <button class="tab-btn" onclick="switchTab('discussionTab', this)">問題討論</button>
+                <button class="tab-btn" onclick="switchTab('completionTab', this)">完成度</button>
+            </div>
+
+            <!-- 制定計畫 Tab -->
+            <div id="planTab" class="tab-content active">
+                <div class="form-group">
+                    <label>計畫名稱</label>
+                    <input type="text" id="planName" placeholder="例如：第1-3章預習">
+                </div>
+                <div class="form-group">
+                    <label>計畫描述</label>
+                    <textarea id="planDescription" placeholder="詳細描述你的讀書計畫..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>預計完成日期</label>
+                    <input type="date" id="planDate">
+                </div>
+                <div class="form-group">
+                    <label>優先級</label>
+                    <select id="planPriority">
+                        <option value="low">低</option>
+                        <option value="medium" selected>中</option>
+                        <option value="high">高</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="savePlan()">保存計畫</button>
+
+                <h3 style="color: #ff69b4; margin-top: 30px;">我的計畫</h3>
+                <div id="plansList"></div>
+            </div>
+
+            <!-- 進度分享 Tab -->
+            <div id="progressTab" class="tab-content">
+                <h3 style="color: #ff69b4; margin-bottom: 15px;">與朋友分享進���</h3>
+                <div class="form-group">
+                    <label>分享內容</label>
+                    <textarea id="progressContent" placeholder="分享你今天的讀書進度..."></textarea>
+                </div>
+                <button class="btn" onclick="shareProgress()">分享進度</button>
+
+                <h3 style="color: #ff69b4; margin-top: 30px;">朋友的進度</h3>
+                <div id="progressList"></div>
+            </div>
+
+            <!-- 問題討論 Tab -->
+            <div id="discussionTab" class="tab-content">
+                <h3 style="color: #ff69b4; margin-bottom: 15px;">問題討論區</h3>
+                <div class="form-group">
+                    <label>提出問題</label>
+                    <input type="text" id="questionTitle" placeholder="問題標題">
+                </div>
+                <div class="form-group">
+                    <label>詳細說明</label>
+                    <textarea id="questionContent" placeholder="描述你遇到的問題..."></textarea>
+                </div>
+                <button class="btn" onclick="postQuestion()">發佈問題</button>
+
+                <h3 style="color: #ff69b4; margin-top: 30px;">討論區</h3>
+                <div id="discussionList"></div>
+            </div>
+
+            <!-- 完成度 Tab -->
+            <div id="completionTab" class="tab-content">
+                <h3 style="color: #ff69b4; margin-bottom: 15px;">更新計畫完成度</h3>
+                <div id="completionList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 專注計時 Modal -->
+    <div id="timerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⏱️ 專注計時</h2>
+                <button class="close-btn" onclick="closeModal('timerModal')">×</button>
+            </div>
+
+            <div class="form-group">
+                <label>設定讀書時間（分鐘）</label>
+                <input type="number" id="timerMinutes" placeholder="輸入分鐘數" value="25" min="1">
+            </div>
+
+            <div class="timer-display" id="timerDisplay">00:00</div>
+
+            <div class="timer-controls">
+                <button class="timer-btn" onclick="startTimer()">開始</button>
+                <button class="timer-btn" onclick="pauseTimer()">暫停</button>
+                <button class="timer-btn" onclick="resetTimer()">重置</button>
+            </div>
+
+            <h3 style="color: #ff69b4; margin-top: 30px;">今日學習時間統計</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>今日時長</h4>
+                    <div class="stat-value" id="todayStudyTime">0分鐘</div>
+                </div>
+                <div class="stat-card">
+                    <h4>本周時長</h4>
+                    <div class="stat-value" id="weekStudyTime">0小時</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 筆記功能 Modal -->
+    <div id="notesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 筆記功能</h2>
+                <button class="close-btn" onclick="closeModal('notesModal')">×</button>
+            </div>
+
+            <div class="form-group">
+                <label>筆記標題</label>
+                <input type="text" id="noteTitle" placeholder="輸入筆記標題">
+            </div>
+
+            <div class="form-group">
+                <label>內容</label>
+                <textarea id="noteContent" placeholder="在這裡記錄你的筆記..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>標籤</label>
+                <input type="text" id="noteTags" placeholder="用逗號分隔，例如：重點, 計算, 公式">
+            </div>
+
+            <button class="btn" onclick="saveNote()">保存筆記</button>
+
+            <h3 style="color: #ff69b4; margin-top: 30px;">我的筆記</h3>
+            <div id="notesList"></div>
+        </div>
+    </div>
+
+    <!-- 進度追蹤 Modal -->
+    <div id="progressModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 進度追蹤</h2>
+                <button class="close-btn" onclick="closeModal('progressModal')">×</button>
+            </div>
+
+            <div class="form-group">
+                <label>閱讀進度（頁數）</label>
+                <input type="number" id="readingPages" placeholder="輸入今天閱讀的頁數" min="0">
+            </div>
+
+            <div class="form-group">
+                <label>花費時間（分鐘）</label>
+                <input type="number" id="spentTime" placeholder="輸入花費的時間" min="0">
+            </div>
+
+            <div class="form-group">
+                <label>今日日期</label>
+                <input type="date" id="trackingDate">
+            </div>
+
+            <button class="btn" onclick="saveTracking()">記錄進度</button>
+
+            <h3 style="color: #ff69b4; margin-top: 30px;">進度統計</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h4>本週閱讀頁數</h4>
+                    <div class="stat-value" id="weekPages">0頁</div>
+                </div>
+                <div class="stat-card">
+                    <h4>本週學習時間</h4>
+                    <div class="stat-value" id="weekTime">0小時</div>
+                </div>
+                <div class="stat-card">
+                    <h4>平均每天</h4>
+                    <div class="stat-value" id="avgDaily">0頁</div>
+                </div>
+            </div>
+
+            <h3 style="color: #ff69b4; margin-top: 30px;">進度詳情</h3>
+            <div id="trackingList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize
+        window.addEventListener('load', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = JSON.parse(currentUser);
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userRole').textContent = user.role;
+            document.getElementById('userAvatar').textContent = user.name.charAt(0);
+            document.getElementById('trackingDate').valueAsDate = new Date();
+
+            loadPlans();
+            loadNotes();
+            loadTracking();
+        });
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Tab Switching
+        function switchTab(tabId, btnElement) {
+            const parent = btnElement.parentElement;
+            const allTabs = parent.parentElement.querySelectorAll('.tab-content');
+            const allBtns = parent.querySelectorAll('.tab-btn');
+
+            allTabs.forEach(tab => tab.classList.remove('active'));
+            allBtns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        // 週計畫 Functions
+        function savePlan() {
+            const plan = {
+                id: Date.now(),
+                name: document.getElementById('planName').value,
+                description: document.getElementById('planDescription').value,
+                date: document.getElementById('planDate').value,
+                priority: document.getElementById('planPriority').value,
+                completed: 0
+            };
+
+            if (!plan.name) {
+                alert('請輸入計畫名稱');
+                return;
+            }
+
+            const plans = JSON.parse(localStorage.getItem('studyPlans')) || [];
+            plans.push(plan);
+            localStorage.setItem('studyPlans', JSON.stringify(plans));
+
+            document.getElementById('planName').value = '';
+            document.getElementById('planDescription').value = '';
+            document.getElementById('planDate').value = '';
+
+            loadPlans();
+            alert('計畫已保存！');
+        }
+
+        function loadPlans() {
+            const plans = JSON.parse(localStorage.getItem('studyPlans')) || [];
+            const plansList = document.getElementById('plansList');
+            plansList.innerHTML = '';
+
+            plans.forEach(plan => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <h4>${plan.name} <span style="font-size: 0.8em; color: #999;">[${plan.priority}]</span></h4>
+                    <p>${plan.description}</p>
+                    <p>📅 ${plan.date}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${plan.completed}%"></div>
+                    </div>
+                    <p style="margin-top: 5px;">完成度: ${plan.completed}%</p>
+                `;
+                plansList.appendChild(item);
+            });
+        }
+
+        function shareProgress() {
+            const content = document.getElementById('progressContent').value;
+            if (!content) {
+                alert('請輸入分享內容');
+                return;
+            }
+
+            const progress = {
+                id: Date.now(),
+                user: JSON.parse(localStorage.getItem('currentUser')).name,
+                content: content,
+                timestamp: new Date().toLocaleString('zh-TW')
+            };
+
+            const progressList = JSON.parse(localStorage.getItem('progressShares')) || [];
+            progressList.push(progress);
+            localStorage.setItem('progressShares', JSON.stringify(progressList));
+
+            document.getElementById('progressContent').value = '';
+            loadProgressShares();
+            alert('進度已分享！');
+        }
+
+        function loadProgressShares() {
+            const progressList = JSON.parse(localStorage.getItem('progressShares')) || [];
+            const list = document.getElementById('progressList');
+            list.innerHTML = '';
+
+            progressList.slice().reverse().forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <h4>👤 ${p.user}</h4>
+                    <p>${p.content}</p>
+                    <p style="font-size: 0.9em; color: #999;">⏰ ${p.timestamp}</p>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function postQuestion() {
+            const title = document.getElementById('questionTitle').value;
+            const content = document.getElementById('questionContent').value;
+
+            if (!title || !content) {
+                alert('請填寫完整的問題');
+                return;
+            }
+
+            const question = {
+                id: Date.now(),
+                user: JSON.parse(localStorage.getItem('currentUser')).name,
+                title: title,
+                content: content,
+                timestamp: new Date().toLocaleString('zh-TW'),
+                replies: []
+            };
+
+            const discussions = JSON.parse(localStorage.getItem('discussions')) || [];
+            discussions.push(question);
+            localStorage.setItem('discussions', JSON.stringify(discussions));
+
+            document.getElementById('questionTitle').value = '';
+            document.getElementById('questionContent').value = '';
+            loadDiscussions();
+            alert('問題已發佈！');
+        }
+
+        function loadDiscussions() {
+            const discussions = JSON.parse(localStorage.getItem('discussions')) || [];
+            const list = document.getElementById('discussionList');
+            list.innerHTML = '';
+
+            discussions.slice().reverse().forEach(q => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <h4>❓ ${q.title}</h4>
+                    <p>${q.content}</p>
+                    <p style="font-size: 0.9em; color: #999;">👤 ${q.user} | ⏰ ${q.timestamp}</p>
+                    <p style="font-size: 0.9em; color: #ff69b4;">💬 ${q.replies.length} 個回覆</p>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // 計時功能
+        let timerInterval = null;
+        let timerSeconds = 0;
+
+        function startTimer() {
+            const minutes = parseInt(document.getElementById('timerMinutes').value);
+            if (!minutes || minutes <= 0) {
+                alert('請輸入有效的分鐘數');
+                return;
+            }
+
+            if (timerInterval) return;
+
+            timerSeconds = minutes * 60;
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (timerSeconds <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                alert('學習時間到！很好的專注！');
+                saveStudyTime();
+                return;
+            }
+
+            timerSeconds--;
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timerSeconds = 0;
+            document.getElementById('timerDisplay').textContent = '00:00';
+        }
+
+        function saveStudyTime() {
+            const minutes = parseInt(document.getElementById('timerMinutes').value);
+            const studyTimes = JSON.parse(localStorage.getItem('studyTimes')) || [];
+            studyTimes.push({
+                date: new Date().toISOString().split('T')[0],
+                minutes: minutes,
+                timestamp: new Date().toLocaleString('zh-TW')
+            });
+            localStorage.setItem('studyTimes', JSON.stringify(studyTimes));
+            loadStudyStats();
+        }
+
+        function loadStudyStats() {
+            const studyTimes = JSON.parse(localStorage.getItem('studyTimes')) || [];
+            const today = new Date().toISOString().split('T')[0];
+            const todayTime = studyTimes.filter(t => t.date === today).reduce((sum, t) => sum + t.minutes, 0);
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            const weekStart_str = weekStart.toISOString().split('T')[0];
+            const weekTime = studyTimes.filter(t => t.date >= weekStart_str).reduce((sum, t) => sum + t.minutes, 0);
+
+            document.getElementById('todayStudyTime').textContent = `${todayTime}分鐘`;
+            document.getElementById('weekStudyTime').textContent = `${(weekTime / 60).toFixed(1)}小時`;
+        }
+
+        // 筆記功能
+        function saveNote() {
+            const note = {
+                id: Date.now(),
+                title: document.getElementById('noteTitle').value,
+                content: document.getElementById('noteContent').value,
+                tags: document.getElementById('noteTags').value,
+                timestamp: new Date().toLocaleString('zh-TW')
+            };
+
+            if (!note.title || !note.content) {
+                alert('請填寫筆記標題和內容');
+                return;
+            }
+
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            notes.push(note);
+            localStorage.setItem('notes', JSON.stringify(notes));
+
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteContent').value = '';
+            document.getElementById('noteTags').value = '';
+
+            loadNotes();
+            alert('筆記已保存！');
+        }
+
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            const notesList = document.getElementById('notesList');
+            notesList.innerHTML = '';
+
+            notes.slice().reverse().forEach(note => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <h4>${note.title}</h4>
+                    <p>${note.content}</p>
+                    <p style="font-size: 0.9em; color: #ff69b4;">🏷️ ${note.tags}</p>
+                    <p style="font-size: 0.85em; color: #999;">⏰ ${note.timestamp}</p>
+                `;
+                notesList.appendChild(item);
+            });
+        }
+
+        // 進度追蹤
+        function saveTracking() {
+            const pages = parseInt(document.getElementById('readingPages').value) || 0;
+            const time = parseInt(document.getElementById('spentTime').value) || 0;
+            const date = document.getElementById('trackingDate').value;
+
+            if (pages === 0 && time === 0) {
+                alert('請輸入閱讀頁數或花費時間');
+                return;
+            }
+
+            const tracking = {
+                id: Date.now(),
+                date: date,
+                pages: pages,
+                time: time
+            };
+
+            const trackings = JSON.parse(localStorage.getItem('trackings')) || [];
+            trackings.push(tracking);
+            localStorage.setItem('trackings', JSON.stringify(trackings));
+
+            document.getElementById('readingPages').value = '';
+            document.getElementById('spentTime').value = '';
+            loadTracking();
+            alert('進度已記錄！');
+        }
+
+        function loadTracking() {
+            const trackings = JSON.parse(localStorage.getItem('trackings')) || [];
+            const trackingList = document.getElementById('trackingList');
+            trackingList.innerHTML = '';
+
+            // Calculate stats
+            const today = new Date();
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            const weekStart_str = weekStart.toISOString().split('T')[0];
+
+            const weekData = trackings.filter(t => t.date >= weekStart_str);
+            const weekPages = weekData.reduce((sum, t) => sum + t.pages, 0);
+            const weekTime = weekData.reduce((sum, t) => sum + t.time, 0);
+            const avgDaily = weekData.length > 0 ? Math.round(weekPages / weekData.length) : 0;
+
+            document.getElementById('weekPages').textContent = `${weekPages}頁`;
+            document.getElementById('weekTime').textContent = `${(weekTime / 60).toFixed(1)}小時`;
+            document.getElementById('avgDaily').textContent = `${avgDaily}頁`;
+
+            // List tracking records
+            trackings.slice().reverse().forEach(t => {
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                item.innerHTML = `
+                    <h4>📅 ${t.date}</h4>
+                    <p>📖 閱讀: ${t.pages}頁</p>
+                    <p>⏱️ 時間: ${t.time}分鐘</p>
+                `;
+                trackingList.appendChild(item);
+            });
+        }
+
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Load initial data
+        loadProgressShares();
+        loadDiscussions();
+        loadStudyStats();
+    </script>
+</body>
+</html>
